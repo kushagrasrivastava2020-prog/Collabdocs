@@ -1,5 +1,6 @@
-# render.yaml - Render Blueprint for CollabDocs
+# render.yaml - Render Blueprint for CollabDocs (NO PERSISTENT DISK on free tier)
 # Free tier: 750 hours/month, 512MB RAM, auto-sleeps after 15min inactivity
+# ⚠️ DATA WILL BE LOST ON RESTART/DEPLOY - no persistent disk on free tier
 # Deploy: Push to GitHub → Connect repo at dashboard.render.com → "New Blueprint Instance"
 
 services:
@@ -26,10 +27,6 @@ services:
         value: "info"
       - key: JWT_SECRET
         generateValue: true  # Auto-generate secure secret
-    # Persistent disk for PGlite database (survives restarts)
-    disk:
-      name: collabdocs-data
-      mountPath: /data
-      sizeGB: 1
+    # NO DISK - data lost on restart (free tier limitation)
     healthCheckPath: /api/health
     autoDeploy: true
