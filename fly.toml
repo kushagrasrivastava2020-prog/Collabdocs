@@ -1,0 +1,45 @@
+# fly.toml - Fly.io configuration for CollabDocs
+# Free tier: up to 3 small VMs, 160GB-months outbound, 3M requests/month
+
+app = "collabdocs"
+primary_region = "iad"  # US East (change if needed: lhr, sin, syd, etc.)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "4000"
+  CLIENT_DIST = "/app/client/dist"
+  PGLITE_DIR = "/data"
+  # COOKIE_SECURE = "true"  # Fly.io provides HTTPS, so cookies can be secure
+  AUTH_RATE_LIMIT = "1000"
+  LOG_LEVEL = "info"
+
+# Persistent volume for PGlite database (survives restarts/deploys)
+[mounts]
+  source = "collabdocs_data"
+  destination = "/data"
+
+# Health checks
+[http_service]
+  internal_port = 4000
+  force_https = true
+  auto_stop_machines = true   # Stop when idle (saves free tier allowance)
+  auto_start_machines = true  # Start on request
+  min_machines_running = 0    # Scale to zero when idle
+  processes = ["app"]
+
+# Health check endpoint
+[[http_service.checks]]
+  interval = "10s"
+  timeout = "3s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/api/health"
+
+# Resource limits (fits in free tier)
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

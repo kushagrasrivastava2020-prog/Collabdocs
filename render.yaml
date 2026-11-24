@@ -1,0 +1,35 @@
+# render.yaml - Render Blueprint for CollabDocs
+# Free tier: 750 hours/month, 512MB RAM, auto-sleeps after 15min inactivity
+# Deploy: Push to GitHub → Connect repo at dashboard.render.com → "New Blueprint Instance"
+
+services:
+  - type: web
+    name: collabdocs
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon  # or frankfurt, singapore
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: CLIENT_DIST
+        value: /app/client/dist
+      - key: PGLITE_DIR
+        value: /data
+      - key: COOKIE_SECURE
+        value: "true"  # Render provides HTTPS
+      - key: AUTH_RATE_LIMIT
+        value: "1000"
+      - key: LOG_LEVEL
+        value: "info"
+      - key: JWT_SECRET
+        generateValue: true  # Auto-generate secure secret
+    # Persistent disk for PGlite database (survives restarts)
+    disk:
+      name: collabdocs-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /api/health
+    autoDeploy: true
