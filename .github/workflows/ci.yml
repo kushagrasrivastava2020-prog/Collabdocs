@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Format, typecheck, unit + integration + fuzz tests, build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run typecheck
+      # Server tests use embedded PGlite + in-process pub/sub: no services needed.
+      # Includes the convergence fuzzer (partitions, failover, node crash).
+      - run: npm test --workspace server --workspace client
+      - run: npm run build
+
+  integration:
+    name: Server tests on real Postgres + Redis
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: collabdocs
+          POSTGRES_PASSWORD: collabdocs
+          POSTGRES_DB: collabdocs
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U collabdocs" --health-interval 3s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 3s --health-retries 20
+    env:
+      DATABASE_URL: postgres://collabdocs:collabdocs@localhost:5432/collabdocs
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Same suite, real backends: cluster + fuzz tests relay through Redis pub/sub.
+      - run: npm test --workspace server
+
+  e2e:
+    name: End-to-end (two real browsers collaborating)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: 'true'
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+
+  chaos:
+    name: Cluster + chaos load test (kill an instance under load)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Start 3 instances + nginx + Postgres + Redis
+        run: docker compose up -d --build --wait app1 app2 app3 lb
+      - name: 150 clients; SIGKILL app2 mid-run, restart it 5 s later
+        run: >
+          npm run loadtest -- --url http://localhost:8080 --clients 150 --docs 10 --users 30
+          --duration 20 --ramp 5 --rate 0.5 --drain 10 --unload-wait 15
+          --chaos-cmd "docker compose -f ../docker-compose.yml kill app2" --chaos-at 6
+          --recover-cmd "docker compose -f ../docker-compose.yml start app2" --recover-at 11
+          --metrics http://localhost:4001,http://localhost:4002,http://localhost:4003
+          --out loadtest-ci.json
+      - name: Assert zero lost edits, full failover, convergence and durability
+        run: |
+          node -e '
+            const r = require("./loadtest/loadtest-ci.json");
+            const f = r.failover;
+            const ok = r.connections.failed === 0 && r.delivery.ratio === 100 &&
+              f.disconnects > 0 && f.reconnectsResynced === f.disconnects &&
+              r.convergence.converged === r.convergence.docs &&
+              r.durability.matchedAfterReload === r.durability.docs;
+            console.log(JSON.stringify({ delivery: r.delivery, latencyMs: r.latencyMs, failover: f, convergence: r.convergence, durability: r.durability }, null, 2));
+            process.exit(ok ? 0 : 1);
+          '
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: loadtest-ci
+          path: loadtest/loadtest-ci.json
+      - if: failure()
+        run: docker compose logs --tail 200

@@ -1,0 +1,191 @@
+{
+  "label": "Chaos: kill -9 one of 3 instances under 500 clients",
+  "at": "2026-11-10T10:07:34.480Z",
+  "config": {
+    "clients": 500,
+    "docs": 25,
+    "clientsPerDoc": 20,
+    "users": 50,
+    "editRatePerClient": 0.2,
+    "durationSec": 60,
+    "rampSec": 20,
+    "workers": 6,
+    "url": "http://localhost:8080"
+  },
+  "host": {
+    "cpus": 12,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "memGb": 17,
+    "platform": "win32 10.0.26200",
+    "node": "v24.21.0"
+  },
+  "connections": {
+    "attempted": 500,
+    "connected": 500,
+    "failed": 0,
+    "droppedByServer": 166,
+    "connectMs": {
+      "samples": 500,
+      "mean": 7.3,
+      "p50": 5.3,
+      "p90": 11.7,
+      "p95": 17.9,
+      "p99": 37,
+      "max": 61.8
+    },
+    "syncMs": {
+      "samples": 500,
+      "mean": 2.3,
+      "p50": 1.7,
+      "p90": 3.5,
+      "p95": 5.5,
+      "p99": 9.7,
+      "max": 21.8
+    }
+  },
+  "edits": {
+    "sent": 5998,
+    "perSecond": 100
+  },
+  "delivery": {
+    "expected": 113962,
+    "received": 113962,
+    "ratio": 100
+  },
+  "latencyMs": {
+    "samples": 113962,
+    "mean": 8.8,
+    "p50": 4.9,
+    "p90": 12.7,
+    "p95": 20,
+    "p99": 53,
+    "max": 940.6
+  },
+  "failover": {
+    "events": [
+      {
+        "what": "fault",
+        "cmd": "docker kill collabdocs-app2-1",
+        "atSec": 20,
+        "ok": true,
+        "output": "collabdocs-app2-1"
+      },
+      {
+        "what": "recover",
+        "cmd": "docker start collabdocs-app2-1",
+        "atSec": 40,
+        "ok": true,
+        "output": "collabdocs-app2-1"
+      }
+    ],
+    "disconnects": 166,
+    "reconnectsResynced": 166,
+    "resyncMs": {
+      "samples": 166,
+      "mean": 439.8,
+      "p50": 413.4,
+      "p90": 810.1,
+      "p95": 841.7,
+      "p99": 926,
+      "max": 931.4
+    },
+    "replicasOnlineAtEnd": 500
+  },
+  "convergence": {
+    "docs": 25,
+    "converged": 25
+  },
+  "durability": {
+    "docs": 25,
+    "matchedAfterReload": 25
+  },
+  "generator": {
+    "eventLoopUtilization": [
+      0.09,
+      0.09,
+      0.09,
+      0.09,
+      0.09,
+      0.1
+    ],
+    "eventLoopDelayP99Ms": [
+      24,
+      24,
+      25,
+      24,
+      25,
+      24
+    ]
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4001",
+      "instance": "app1",
+      "peakConnections": 251,
+      "peakRooms": 25,
+      "memoryMbMid": 174,
+      "eventLoopMid": {
+        "utilization": 0.28,
+        "delayP50Ms": 10.22,
+        "delayP99Ms": 17.53,
+        "delayMaxMs": 61.41
+      },
+      "delta": {
+        "messagesIn": 6307,
+        "messagesOut": 111390,
+        "updatesApplied": 2919,
+        "opLogAppends": 2394,
+        "snapshots": 25,
+        "busIn": 7329,
+        "busOut": 5839,
+        "connectionsTotal": 251
+      }
+    },
+    {
+      "url": "http://localhost:4002",
+      "instance": "app2",
+      "peakConnections": 0,
+      "peakRooms": 0,
+      "memoryMbMid": 117,
+      "eventLoopMid": {
+        "utilization": 0.01,
+        "delayP50Ms": 10.18,
+        "delayP99Ms": 13,
+        "delayMaxMs": 29.31
+      },
+      "delta": {
+        "messagesIn": 0,
+        "messagesOut": 0,
+        "updatesApplied": 0,
+        "opLogAppends": 0,
+        "snapshots": 0,
+        "busIn": 0,
+        "busOut": 0,
+        "connectionsTotal": 0
+      }
+    },
+    {
+      "url": "http://localhost:4003",
+      "instance": "app3",
+      "peakConnections": 249,
+      "peakRooms": 25,
+      "memoryMbMid": 186,
+      "eventLoopMid": {
+        "utilization": 0.29,
+        "delayP50Ms": 10.21,
+        "delayP99Ms": 18.97,
+        "delayMaxMs": 66.88
+      },
+      "delta": {
+        "messagesIn": 6263,
+        "messagesOut": 109990,
+        "updatesApplied": 2893,
+        "opLogAppends": 2454,
+        "snapshots": 25,
+        "busIn": 7391,
+        "busOut": 5801,
+        "connectionsTotal": 249
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# Single-instance production deployment (no external Postgres/Redis needed)
+# Uses PGlite (embedded SQLite) + in-process pub/sub
+# Run: docker compose -f docker-compose.prod.yml up -d --build
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # DATABASE_URL unset → uses PGlite (file-based, persists to volume)
+      # REDIS_URL unset → uses in-process pub/sub
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      COOKIE_SECURE: 'false'  # Set 'true' behind HTTPS (e.g., Fly.io, Cloudflare Tunnel)
+      AUTH_RATE_LIMIT: 1000
+      LOG_LEVEL: info
+      PORT: 4000
+      CLIENT_DIST: /app/client/dist
+      PGLITE_DIR: /data
+    ports:
+      - '4000:4000'
+    volumes:
+      - pgdata:/data
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/api/health']
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  pgdata:

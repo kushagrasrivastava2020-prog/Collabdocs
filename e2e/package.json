@@ -1,0 +1,16 @@
+{
+  "name": "@collabdocs/e2e",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "End-to-end tests (two real browsers collaborating) and README media capture",
+  "scripts": {
+    "test": "playwright test",
+    "capture": "node scripts/capture.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "gifenc": "^1.0.3",
+    "pngjs": "^7.0.0"
+  }
+}

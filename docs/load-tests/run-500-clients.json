@@ -1,0 +1,161 @@
+{
+  "label": "500 clients / 25 docs / 1 edit/s",
+  "at": "2026-11-10T05:54:08.085Z",
+  "config": {
+    "clients": 500,
+    "docs": 25,
+    "clientsPerDoc": 20,
+    "users": 50,
+    "editRatePerClient": 1,
+    "durationSec": 60,
+    "rampSec": 20,
+    "workers": 6,
+    "url": "http://localhost:8080"
+  },
+  "host": {
+    "cpus": 12,
+    "cpuModel": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "memGb": 17,
+    "platform": "win32 10.0.26200",
+    "node": "v24.21.0"
+  },
+  "connections": {
+    "attempted": 500,
+    "connected": 500,
+    "failed": 0,
+    "unexpectedCloses": 0,
+    "connectMs": {
+      "samples": 500,
+      "mean": 16.1,
+      "p50": 9.7,
+      "p90": 22.4,
+      "p95": 33.2,
+      "p99": 215.7,
+      "max": 379.4
+    },
+    "syncMs": {
+      "samples": 500,
+      "mean": 3.3,
+      "p50": 2.2,
+      "p90": 7.1,
+      "p95": 9.4,
+      "p99": 18.9,
+      "max": 27.3
+    }
+  },
+  "edits": {
+    "sent": 17682,
+    "perSecond": 295
+  },
+  "delivery": {
+    "expected": 335958,
+    "received": 335958,
+    "ratio": 100
+  },
+  "latencyMs": {
+    "samples": 335958,
+    "mean": 710.5,
+    "p50": 602.1,
+    "p90": 1404.1,
+    "p95": 1647.5,
+    "p99": 2224.9,
+    "max": 4258.1
+  },
+  "convergence": {
+    "docs": 25,
+    "converged": 25
+  },
+  "durability": {
+    "docs": 25,
+    "matchedAfterReload": 25
+  },
+  "generator": {
+    "eventLoopUtilization": [
+      0.69,
+      0.69,
+      0.69,
+      0.69,
+      0.69,
+      0.69
+    ],
+    "eventLoopDelayP99Ms": [
+      1326,
+      1395,
+      1123,
+      1274,
+      1369,
+      1280
+    ]
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4001",
+      "instance": "app1",
+      "peakConnections": 166,
+      "peakRooms": 25,
+      "memoryMbMid": 248,
+      "eventLoopMid": {
+        "utilization": 0.67,
+        "delayP50Ms": 10.47,
+        "delayP99Ms": 62.65,
+        "delayMaxMs": 163.71
+      },
+      "delta": {
+        "messagesIn": 8360,
+        "messagesOut": 158123,
+        "updatesApplied": 6049,
+        "opLogAppends": 4320,
+        "snapshots": 35,
+        "busIn": 16202,
+        "busOut": 8138,
+        "connectionsTotal": 166
+      }
+    },
+    {
+      "url": "http://localhost:4002",
+      "instance": "app2",
+      "peakConnections": 168,
+      "peakRooms": 25,
+      "memoryMbMid": 257,
+      "eventLoopMid": {
+        "utilization": 0.67,
+        "delayP50Ms": 10.49,
+        "delayP99Ms": 59.28,
+        "delayMaxMs": 143.52
+      },
+      "delta": {
+        "messagesIn": 8416,
+        "messagesOut": 160123,
+        "updatesApplied": 6099,
+        "opLogAppends": 4201,
+        "snapshots": 35,
+        "busIn": 16153,
+        "busOut": 8188,
+        "connectionsTotal": 168
+      }
+    },
+    {
+      "url": "http://localhost:4003",
+      "instance": "app3",
+      "peakConnections": 166,
+      "peakRooms": 25,
+      "memoryMbMid": 240,
+      "eventLoopMid": {
+        "utilization": 0.68,
+        "delayP50Ms": 10.51,
+        "delayP99Ms": 66.26,
+        "delayMaxMs": 278.66
+      },
+      "delta": {
+        "messagesIn": 8334,
+        "messagesOut": 158083,
+        "updatesApplied": 6034,
+        "opLogAppends": 4270,
+        "snapshots": 33,
+        "busIn": 16230,
+        "busOut": 8112,
+        "connectionsTotal": 166
+      }
+    }
+  ]
+}
